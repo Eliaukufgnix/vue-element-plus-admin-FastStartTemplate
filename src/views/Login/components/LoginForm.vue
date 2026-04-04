@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { onMounted, reactive, ref, unref, watch, toRaw } from 'vue'
+import { onMounted, reactive, ref, unref, watch } from 'vue'
 import { Form, FormSchema } from '@/components/Form'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ElCheckbox, ElLink } from 'element-plus'
@@ -243,14 +243,14 @@ const signIn = async () => {
           }
           userStore.setRememberMe(unref(remember))
           // 存token
-          userStore.setToken(res?.data[0]?.token)
+          userStore.setToken(res?.data[0]?.access_token)
+          userStore.setRefreshToken(res?.data[0]?.refresh_token)
           // 解析token并保存用户信息
-          if (res?.data[0]?.token) {
-            userStore.setUserInfo(parseJwt(res.data[0].token))
+          if (res?.data[0]?.access_token) {
+            userStore.setUserInfo(parseJwt(res.data[0].access_token))
           }
           // 是否使用动态路由
           if (appStore.getDynamicRouter) {
-            debugger
             getRole()
           } else {
             await permissionStore.generateRoutes('static').catch(() => {})

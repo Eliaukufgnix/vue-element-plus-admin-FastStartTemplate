@@ -234,7 +234,7 @@ const getAllData = () => {
   }
   const data = tableData.filter((row) => row.price !== '')
   ElMessage({
-    message: data,
+    message: JSON.stringify(data),
     type: 'success'
   })
 }

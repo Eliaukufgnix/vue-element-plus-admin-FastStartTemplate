@@ -10,5 +10,5 @@ export const deleteUserTableApi = (ids: string[] | number[]) => {
 }
 
 export const saveUserTableApi = (data: Partial<UserTableData>) => {
-  return request.post({ url: '/SysUser/AddSysUser', data })
+  return request.post({ url: '/SysUser/SaveSysUser', data })
 }

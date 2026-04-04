@@ -11,6 +11,7 @@ interface UserState {
   userInfo?: UserType
   tokenKey: string
   token: string
+  refreshToken: string
   roleRouters?: string[] | AppCustomRouteRecordRaw[]
   rememberMe: boolean
   loginInfo?: UserLoginType
@@ -22,6 +23,7 @@ export const useUserStore = defineStore('user', {
       userInfo: undefined,
       tokenKey: 'Authorization',
       token: '',
+      refreshToken: '',
       roleRouters: undefined,
       // 记住我
       rememberMe: true,
@@ -54,6 +56,9 @@ export const useUserStore = defineStore('user', {
     },
     setToken(token: string) {
       this.token = token
+    },
+    setRefreshToken(refreshToken: string) {
+      this.refreshToken = refreshToken
     },
     setUserInfo(userInfo?: UserType) {
       this.userInfo = userInfo

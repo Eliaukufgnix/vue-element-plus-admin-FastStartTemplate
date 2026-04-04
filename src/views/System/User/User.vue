@@ -39,7 +39,7 @@ const { tableRegister, tableState, tableMethods } = useTable({
   }
 })
 const { loading, dataList, total, currentPage, pageSize } = tableState
-const { getList, getElTableExpose, delList } = tableMethods
+const { getList, getElTableExpose, delList, refresh } = tableMethods
 
 const searchParams = ref({})
 const setSearchParams = (params: any) => {
@@ -204,7 +204,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'action',
-    width: '260px',
+    width: '200px',
     label: t('tableDemo.action'),
     search: {
       hidden: true
@@ -222,9 +222,6 @@ const crudSchemas = reactive<CrudSchema[]>([
             <>
               <BaseButton type="primary" onClick={() => action(data.row, 'edit')}>
                 {t('exampleDemo.edit')}
-              </BaseButton>
-              <BaseButton type="success" onClick={() => action(data.row, 'detail')}>
-                {t('exampleDemo.detail')}
               </BaseButton>
               <BaseButton type="danger" onClick={() => delData(data.row)}>
                 {t('exampleDemo.del')}
@@ -295,9 +292,11 @@ const save = async () => {
 </script>
 
 <template>
-  <ContentWrap title="用户管理">
+  <ContentWrap title="用户管理" message="用于修改整个系统登陆人员信息" style="margin-bottom: 10px">
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
-    <div class="mb-10px">
+  </ContentWrap>
+  <ContentWrap>
+    <div>
       <BaseButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</BaseButton>
       <BaseButton type="danger" @click="delData(null)" :loading="delLoading">
         {{ t('exampleDemo.del') }}
@@ -312,7 +311,9 @@ const save = async () => {
       :pagination="{
         total: total
       }"
+      showAction
       @register="tableRegister"
+      @refresh="refresh"
     />
   </ContentWrap>
   <Dialog v-model="dialogVisible" :title="dialogTitle">
