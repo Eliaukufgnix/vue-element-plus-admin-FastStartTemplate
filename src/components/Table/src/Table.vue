@@ -556,14 +556,17 @@ export default defineComponent({
             </div>
           ) : (
             <>
-              {unref(getProps).showAction && !unref(getProps).customContent ? (
-                <TableActions
-                  columns={unref(getProps).columns}
-                  onChangSize={changSize}
-                  onRefresh={refresh}
-                  onConfirm={confirmSetColumn}
-                />
-              ) : null}
+              <div class="flex justify-between items-center mb-10px">
+                <div>{getSlot(slots, 'toolbar') || null}</div>
+                {unref(getProps).showAction && !unref(getProps).customContent ? (
+                  <TableActions
+                    columns={unref(getProps).columns}
+                    onChangSize={changSize}
+                    onRefresh={refresh}
+                    onConfirm={confirmSetColumn}
+                  />
+                ) : null}
+              </div>
               <ElTable ref={elTableRef} data={unref(getProps).data} {...unref(getBindValue)}>
                 {{
                   default: () => renderTableColumn(),

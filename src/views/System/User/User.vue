@@ -296,12 +296,6 @@ const save = async () => {
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
   </ContentWrap>
   <ContentWrap>
-    <div>
-      <BaseButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</BaseButton>
-      <BaseButton type="danger" @click="delData(null)" :loading="delLoading">
-        {{ t('exampleDemo.del') }}
-      </BaseButton>
-    </div>
     <Table
       v-model:pageSize="pageSize"
       v-model:currentPage="currentPage"
@@ -314,7 +308,14 @@ const save = async () => {
       showAction
       @register="tableRegister"
       @refresh="refresh"
-    />
+    >
+      <template #toolbar>
+        <BaseButton type="primary" @click="AddAction">{{ t('exampleDemo.add') }}</BaseButton>
+        <BaseButton type="danger" @click="delData(null)" :loading="delLoading">
+          {{ t('exampleDemo.del') }}
+        </BaseButton>
+      </template>
+    </Table>
   </ContentWrap>
   <Dialog v-model="dialogVisible" :title="dialogTitle">
     <Write
