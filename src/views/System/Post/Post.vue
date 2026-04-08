@@ -8,13 +8,13 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/menu'
+import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/post'
 import { BaseButton } from '@/components/Button'
-import { MenuTableData } from '@/api/system/menu/types'
+import { PostTableData } from '@/api/system/post/types'
 import Write from './components/Write.vue'
 
 defineOptions({
-  name: 'Menu'
+  name: 'Post'
 })
 
 const { t } = useI18n()
@@ -63,91 +63,20 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'menuId',
-    label: '菜单编号'
+    field: 'postCode',
+    label: '岗位编码'
   },
   {
-    field: 'menuName',
-    label: '菜单名称',
-    search: {
-      component: 'Input'
-    },
-    detail: {
-      span: 24
-    }
+    field: 'postName',
+    label: '岗位名称'
   },
   {
-    field: 'parentId',
-    label: '父菜单编号',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'orderNum',
-    label: '排序',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'path',
-    label: '路径',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'component',
-    label: '组件路径',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'menuType',
-    label: '菜单类型',
-    formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
-      const options = {
-        M: '目录',
-        C: '菜单',
-        F: '按钮'
-      }
-      return options[cellValue] || cellValue
-    },
-    search: {
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: '目录', value: 'M' },
-          { label: '菜单', value: 'C' },
-          { label: '按钮', value: 'F' }
-        ]
-      }
-    }
-  },
-  {
-    field: 'visible',
-    label: '显示状态',
-    formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
-      return cellValue == '0' ? '显示' : '隐藏'
-    },
-    search: {
-      component: 'Select',
-      componentProps: {
-        style: {
-          width: '100%'
-        },
-        options: [
-          { label: '显示', value: '0' },
-          { label: '隐藏', value: '1' }
-        ]
-      }
-    }
+    field: 'postSort',
+    label: '岗位排序'
   },
   {
     field: 'status',
-    label: '菜单状态',
+    label: '岗位状态',
     formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
       return cellValue == '0' ? '正常' : '停用'
     },
@@ -171,20 +100,6 @@ const crudSchemas = reactive<CrudSchema[]>([
           { label: '停用', value: '1' }
         ]
       }
-    }
-  },
-  {
-    field: 'perms',
-    label: '权限字符',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'icon',
-    label: '菜单图标',
-    search: {
-      hidden: true
     }
   },
   {
@@ -269,7 +184,7 @@ const { allSchemas } = useCrudSchemas(crudSchemas)
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const currentRow = ref<MenuTableData | null>(null)
+const currentRow = ref<PostTableData | null>(null)
 const actionType = ref('')
 
 const AddAction = () => {
@@ -281,18 +196,18 @@ const AddAction = () => {
 
 const delLoading = ref(false)
 
-const delData = async (row: MenuTableData | null) => {
+const delData = async (row: PostTableData | null) => {
   const elTableExpose = await getElTableExpose()
   ids.value = row
-    ? [row.menuId]
-    : elTableExpose?.getSelectionRows().map((v: MenuTableData) => v.menuId) || []
+    ? [row.postId]
+    : elTableExpose?.getSelectionRows().map((v: PostTableData) => v.postId) || []
   delLoading.value = true
   await delList(unref(ids).length).finally(() => {
     delLoading.value = false
   })
 }
 
-const action = (row: MenuTableData, type: string) => {
+const action = (row: PostTableData, type: string) => {
   dialogTitle.value = t(type === 'edit' ? 'exampleDemo.edit' : 'exampleDemo.detail')
   actionType.value = type
   currentRow.value = row
@@ -323,7 +238,7 @@ const save = async () => {
 </script>
 
 <template>
-  <ContentWrap title="菜单管理" style="margin-bottom: 10px">
+  <ContentWrap title="岗位管理" style="margin-bottom: 10px">
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
   </ContentWrap>
   <ContentWrap>

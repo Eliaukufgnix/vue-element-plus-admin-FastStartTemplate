@@ -195,6 +195,12 @@ const crudSchemas = reactive<CrudSchema[]>([
     label: '更新时间',
     search: {
       hidden: true
+    },
+    form: {
+      component: 'DatePicker',
+      componentProps: {
+        type: 'datetime'
+      }
     }
   },
   {
