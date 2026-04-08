@@ -208,6 +208,16 @@ const crudSchemas = reactive<CrudSchema[]>([
     label: '备注',
     search: {
       hidden: true
+    },
+    form: {
+      component: 'Input',
+      componentProps: {
+        type: 'textarea',
+        rows: 4
+      },
+      colProps: {
+        span: 24
+      }
     }
   },
   {

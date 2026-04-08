@@ -1,20 +1,19 @@
 <script setup lang="tsx">
-//import { ElInput } from 'element-plus'
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
-import { Table, TableColumn } from '@/components/Table'
+import { Table } from '@/components/Table'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/post'
+import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/config'
 import { BaseButton } from '@/components/Button'
-import { PostTableData } from '@/api/system/post/types'
+import { ConfigTableData } from '@/api/system/config/types'
 import Write from './components/Write.vue'
 
 defineOptions({
-  name: 'Post'
+  name: 'Config'
 })
 
 const { t } = useI18n()
@@ -63,48 +62,27 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'postCode',
-    label: '岗位编码'
-  },
-  {
-    field: 'postName',
-    label: '岗位名称'
-  },
-  {
-    field: 'postSort',
-    label: '岗位排序'
-  },
-  {
-    field: 'status',
-    label: '岗位状态',
-    formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
-      return cellValue == '0' ? '正常' : '停用'
-    },
+    field: 'configId',
+    label: '参数主键',
     search: {
-      component: 'Select',
-      componentProps: {
-        style: {
-          width: '100%'
-        },
-        options: [
-          { label: '正常', value: '0' },
-          { label: '停用', value: '1' }
-        ]
-      }
-    },
-    form: {
-      component: 'Select',
-      componentProps: {
-        options: [
-          { label: '正常', value: '0' },
-          { label: '停用', value: '1' }
-        ]
-      }
+      hidden: true
     }
   },
   {
+    field: 'configName',
+    label: '参数名称'
+  },
+  {
+    field: 'configKey',
+    label: '参数键名'
+  },
+  {
+    field: 'configValue',
+    label: '参数键值'
+  },
+  {
     field: 'createBy',
-    label: '创建人',
+    label: '创建者',
     search: {
       hidden: true
     }
@@ -124,7 +102,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'updateBy',
-    label: '更新人',
+    label: '更新者',
     search: {
       hidden: true
     }
@@ -139,23 +117,6 @@ const crudSchemas = reactive<CrudSchema[]>([
       component: 'DatePicker',
       componentProps: {
         type: 'datetime'
-      }
-    }
-  },
-  {
-    field: 'remark',
-    label: '备注',
-    search: {
-      hidden: true
-    },
-    form: {
-      component: 'Input',
-      componentProps: {
-        type: 'textarea',
-        rows: 4
-      },
-      colProps: {
-        span: 24
       }
     }
   },
@@ -194,7 +155,7 @@ const { allSchemas } = useCrudSchemas(crudSchemas)
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const currentRow = ref<PostTableData | null>(null)
+const currentRow = ref<ConfigTableData | null>(null)
 const actionType = ref('')
 
 const AddAction = () => {
@@ -206,18 +167,18 @@ const AddAction = () => {
 
 const delLoading = ref(false)
 
-const delData = async (row: PostTableData | null) => {
+const delData = async (row: ConfigTableData | null) => {
   const elTableExpose = await getElTableExpose()
   ids.value = row
-    ? [row.postId]
-    : elTableExpose?.getSelectionRows().map((v: PostTableData) => v.postId) || []
+    ? [row.configId]
+    : elTableExpose?.getSelectionRows().map((v: ConfigTableData) => v.configId) || []
   delLoading.value = true
   await delList(unref(ids).length).finally(() => {
     delLoading.value = false
   })
 }
 
-const action = (row: PostTableData, type: string) => {
+const action = (row: ConfigTableData, type: string) => {
   dialogTitle.value = t(type === 'edit' ? 'exampleDemo.edit' : 'exampleDemo.detail')
   actionType.value = type
   currentRow.value = row
@@ -248,7 +209,7 @@ const save = async () => {
 </script>
 
 <template>
-  <ContentWrap title="岗位管理" style="margin-bottom: 10px">
+  <ContentWrap title="配置管理" style="margin-bottom: 10px">
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
   </ContentWrap>
   <ContentWrap>

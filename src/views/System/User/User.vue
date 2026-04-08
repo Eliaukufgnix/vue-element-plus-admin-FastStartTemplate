@@ -189,9 +189,6 @@ const crudSchemas = reactive<CrudSchema[]>([
     search: {
       hidden: true
     },
-    table: {
-      hidden: true
-    },
     form: {
       component: 'Input',
       componentProps: {

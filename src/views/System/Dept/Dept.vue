@@ -2,7 +2,7 @@
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
-import { Table } from '@/components/Table'
+import { Table, TableColumn } from '@/components/Table'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
@@ -107,18 +107,27 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'status',
     label: '状态',
+    formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
+      return cellValue == '0' ? '正常' : '停用'
+    },
+    search: {
+      component: 'Select',
+      componentProps: {
+        style: {
+          width: '100%'
+        },
+        options: [
+          { label: '正常', value: '0' },
+          { label: '停用', value: '1' }
+        ]
+      }
+    },
     form: {
       component: 'Select',
       componentProps: {
         options: [
-          {
-            label: '正常',
-            value: 0
-          },
-          {
-            label: '停用',
-            value: 1
-          }
+          { label: '正常', value: '0' },
+          { label: '停用', value: '1' }
         ]
       }
     }
