@@ -8,11 +8,10 @@ import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { getUserTableApi, deleteUserTableApi, saveUserTableApi } from '@/api/system/user'
+import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/user'
 import { BaseButton } from '@/components/Button'
 import { UserTableData } from '@/api/system/user/types'
 import Write from './components/Write.vue'
-import Detail from './components/Detail.vue'
 
 defineOptions({
   name: 'User'
@@ -23,7 +22,7 @@ const ids = ref<string[]>([])
 const { tableRegister, tableState, tableMethods } = useTable({
   fetchDataApi: async () => {
     const { currentPage, pageSize } = tableState
-    const res = await getUserTableApi({
+    const res = await getTableApi({
       pageIndex: unref(currentPage),
       pageSize: unref(pageSize),
       ...unref(searchParams)
@@ -34,7 +33,7 @@ const { tableRegister, tableState, tableMethods } = useTable({
     }
   },
   fetchDelApi: async () => {
-    const res = await deleteUserTableApi(unref(ids))
+    const res = await deleteTableApi(unref(ids))
     return !!res
   }
 })
@@ -65,7 +64,10 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'userId',
-    label: '用户ID'
+    label: '用户ID',
+    search: {
+      hidden: true
+    }
   },
   {
     field: 'userName',
@@ -84,30 +86,11 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'sex',
     label: '用户性别',
+    search: {
+      hidden: true
+    },
     formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
       return cellValue == '0' ? '男' : cellValue == '1' ? '女' : '未知'
-    },
-    search: {
-      component: 'Select',
-      componentProps: {
-        style: {
-          width: '100%'
-        },
-        options: [
-          {
-            label: '男',
-            value: '0'
-          },
-          {
-            label: '女',
-            value: '1'
-          },
-          {
-            label: '未知',
-            value: '2'
-          }
-        ]
-      }
     },
     form: {
       component: 'Select',
@@ -142,11 +125,17 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'loginIp',
-    label: '最后登录IP'
+    label: '最后登录IP',
+    search: {
+      hidden: true
+    }
   },
   {
     field: 'loginDate',
     label: '最后登录时间',
+    search: {
+      hidden: true
+    },
     form: {
       component: 'DatePicker',
       componentProps: {
@@ -156,11 +145,17 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'createBy',
-    label: '创建者'
+    label: '创建者',
+    search: {
+      hidden: true
+    }
   },
   {
     field: 'createTime',
     label: '创建时间',
+    search: {
+      hidden: true
+    },
     form: {
       component: 'DatePicker',
       componentProps: {
@@ -170,11 +165,17 @@ const crudSchemas = reactive<CrudSchema[]>([
   },
   {
     field: 'updateBy',
-    label: '更新者'
+    label: '更新者',
+    search: {
+      hidden: true
+    }
   },
   {
     field: 'updateTime',
     label: '更新时间',
+    search: {
+      hidden: true
+    },
     form: {
       component: 'DatePicker',
       componentProps: {
@@ -185,6 +186,9 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'remark',
     label: '备注',
+    search: {
+      hidden: true
+    },
     table: {
       hidden: true
     },
@@ -197,14 +201,11 @@ const crudSchemas = reactive<CrudSchema[]>([
       colProps: {
         span: 24
       }
-    },
-    search: {
-      hidden: true
     }
   },
   {
     field: 'action',
-    width: '200px',
+    width: '126px',
     label: t('tableDemo.action'),
     search: {
       hidden: true
@@ -271,13 +272,12 @@ const writeRef = ref<ComponentRef<typeof Write>>()
 
 const saveLoading = ref(false)
 
-//TODO 这里的添加和更新用了同一个方法？
 const save = async () => {
   const write = unref(writeRef)
   const formData = await write?.submit()
   if (formData) {
     saveLoading.value = true
-    const res = await saveUserTableApi(formData)
+    const res = await saveTableApi(formData)
       .catch(() => {})
       .finally(() => {
         saveLoading.value = false
@@ -293,17 +293,24 @@ const save = async () => {
 
 <template>
   <ContentWrap title="用户管理" message="用于修改整个系统登陆人员信息" style="margin-bottom: 10px">
-    <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
+    <Search
+      :schema="allSchemas.searchSchema"
+      @search="setSearchParams"
+      @reset="setSearchParams"
+      showExpand
+    />
   </ContentWrap>
   <ContentWrap>
     <Table
+      height="calc(100vh - 440px)"
       v-model:pageSize="pageSize"
       v-model:currentPage="currentPage"
       :columns="allSchemas.tableColumns"
       :data="dataList"
       :loading="loading"
       :pagination="{
-        total: total
+        total: total,
+        small: true
       }"
       showAction
       @register="tableRegister"
@@ -322,12 +329,6 @@ const save = async () => {
       v-if="actionType !== 'detail'"
       ref="writeRef"
       :form-schema="allSchemas.formSchema"
-      :current-row="currentRow"
-    />
-
-    <Detail
-      v-if="actionType === 'detail'"
-      :detail-schema="allSchemas.detailSchema"
       :current-row="currentRow"
     />
 
