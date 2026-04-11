@@ -250,11 +250,17 @@ const save = async () => {
 
 <template>
   <ContentWrap title="操作日志管理" style="margin-bottom: 10px">
-    <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
+    <Search
+      :schema="allSchemas.searchSchema"
+      @search="setSearchParams"
+      @reset="setSearchParams"
+      showExpand
+      :expand="false"
+    />
   </ContentWrap>
   <ContentWrap>
     <Table
-      height="calc(100vh - 440px)"
+      height="calc(100vh - 400px)"
       v-model:pageSize="pageSize"
       v-model:currentPage="currentPage"
       :columns="allSchemas.tableColumns"

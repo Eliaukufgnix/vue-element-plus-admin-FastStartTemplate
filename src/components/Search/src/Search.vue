@@ -31,8 +31,12 @@ const props = defineProps({
   showReset: propTypes.bool.def(true),
   // 是否显示伸缩
   showExpand: propTypes.bool.def(false),
+  // 默认是否展开（false表示默认折叠）
+  expand: propTypes.bool.def(true),
   // 伸缩的界限字段
   expandField: propTypes.string.def(''),
+  // 默认显示前N个查询字段，默认为4（一行）
+  showFirstN: propTypes.number.def(4),
   inline: propTypes.bool.def(true),
   // 是否去除空值项
   removeNoValueItem: propTypes.bool.def(true),
@@ -46,7 +50,7 @@ const props = defineProps({
 
 const emit = defineEmits(['search', 'reset', 'register', 'validate'])
 
-const visible = ref(true)
+const visible = ref(props.expand)
 
 // 表单数据
 const formModel = ref<Recordable>(props.model)
@@ -54,17 +58,34 @@ const formModel = ref<Recordable>(props.model)
 const newSchema = computed(() => {
   const propsComputed = unref(getProps)
   let schema: FormSchema[] = cloneDeep(propsComputed.schema)
-  if (propsComputed.showExpand && propsComputed.expandField && !unref(visible)) {
-    const index = findIndex(schema, (v: FormSchema) => v.field === propsComputed.expandField)
-    schema.map((v, i) => {
-      if (i >= index) {
+
+  // 计算可显示的字段数量（排除action按钮和hidden字段）
+  const visibleCount = schema.filter((v) => v.field !== 'action' && v.hidden !== true).length
+
+  // 只有当showExpand为true、且字段数大于showFirstN时才需要展开按钮
+  const needExpand = propsComputed.showExpand && visibleCount > propsComputed.showFirstN
+
+  // 只有当showExpand为true、visible为false（折叠）、且字段数大于showFirstN时才折叠
+  if (propsComputed.showExpand && !unref(visible) && visibleCount > propsComputed.showFirstN) {
+    let shownCount = 0
+    schema.map((v) => {
+      // 跳过action按钮
+      if (v.field === 'action') {
+        return v
+      }
+      // 如果当前字段原本是隐藏的，保持隐藏
+      if (v.hidden === true) {
+        return v
+      }
+      shownCount++
+      // 超过showFirstN个就隐藏
+      if (shownCount > propsComputed.showFirstN) {
         v.hidden = true
-      } else {
-        v.hidden = false
       }
       return v
     })
   }
+
   if (propsComputed.layout === 'inline') {
     schema = schema.concat([
       {
@@ -78,7 +99,7 @@ const newSchema = computed(() => {
                   <ActionButton
                     showSearch={propsComputed.showSearch}
                     showReset={propsComputed.showReset}
-                    showExpand={propsComputed.showExpand}
+                    showExpand={needExpand}
                     searchLoading={propsComputed.searchLoading}
                     resetLoading={propsComputed.resetLoading}
                     visible={visible.value}

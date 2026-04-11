@@ -40,10 +40,14 @@ const { tableRegister, tableState, tableMethods } = useTable({
 const { loading, dataList, total, currentPage, pageSize } = tableState
 const { getList, getElTableExpose, delList, refresh } = tableMethods
 
+const searchLoading = ref(false)
 const searchParams = ref({})
-const setSearchParams = (params: any) => {
+const setSearchParams = async (params: any) => {
+  searchLoading.value = true
   searchParams.value = params
-  getList()
+  await getList().finally(() => {
+    searchLoading.value = false
+  })
 }
 
 const crudSchemas = reactive<CrudSchema[]>([
@@ -315,12 +319,13 @@ const save = async () => {
       @search="setSearchParams"
       @reset="setSearchParams"
       showExpand
-      expandField="roleName"
+      :expand="false"
+      :searchLoading="searchLoading"
     />
   </ContentWrap>
   <ContentWrap>
     <Table
-      height="calc(100vh - 440px)"
+      height="calc(100vh - 400px)"
       v-model:pageSize="pageSize"
       v-model:currentPage="currentPage"
       :columns="allSchemas.tableColumns"
