@@ -2,18 +2,18 @@
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
-import { Table } from '@/components/Table'
+import { Table, TableColumn } from '@/components/Table'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/config'
+import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/dict'
 import { BaseButton } from '@/components/Button'
-import { ConfigTableData } from '@/api/system/config/types'
+import { DictTableData } from '@/api/system/dict/types'
 import Write from './components/Write.vue'
 
 defineOptions({
-  name: 'Config'
+  name: 'Dict'
 })
 
 const { t } = useI18n()
@@ -62,26 +62,56 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'configId',
-    label: '参数主键',
+    field: 'dictId',
+    label: '字典ID',
     search: {
-      hidden: true
-    },
-    form: {
       hidden: true
     }
   },
   {
-    field: 'configName',
-    label: '参数名称'
+    field: 'dictName',
+    label: '字典名称',
+    search: {
+      component: 'Input'
+    },
+    detail: {
+      span: 24
+    }
   },
   {
-    field: 'configKey',
-    label: '参数键名'
+    field: 'dictType',
+    label: '字典类型',
+    search: {
+      hidden: true
+    }
   },
   {
-    field: 'configValue',
-    label: '参数键值'
+    field: 'status',
+    label: '状态',
+    formatter: (_: Recordable, __: TableColumn, cellValue: string) => {
+      return cellValue == '0' ? '正常' : '停用'
+    },
+    search: {
+      component: 'Select',
+      componentProps: {
+        style: {
+          width: '100%'
+        },
+        options: [
+          { label: '正常', value: '0' },
+          { label: '停用', value: '1' }
+        ]
+      }
+    },
+    form: {
+      component: 'Select',
+      componentProps: {
+        options: [
+          { label: '正常', value: '0' },
+          { label: '停用', value: '1' }
+        ]
+      }
+    }
   },
   {
     field: 'createBy',
@@ -158,7 +188,7 @@ const { allSchemas } = useCrudSchemas(crudSchemas)
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const currentRow = ref<ConfigTableData | null>(null)
+const currentRow = ref<DictTableData | null>(null)
 const actionType = ref('')
 
 const AddAction = () => {
@@ -170,18 +200,18 @@ const AddAction = () => {
 
 const delLoading = ref(false)
 
-const delData = async (row: ConfigTableData | null) => {
+const delData = async (row: DictTableData | null) => {
   const elTableExpose = await getElTableExpose()
   ids.value = row
-    ? [row.configId]
-    : elTableExpose?.getSelectionRows().map((v: ConfigTableData) => v.configId) || []
+    ? [row.dictId]
+    : elTableExpose?.getSelectionRows().map((v: DictTableData) => v.dictId) || []
   delLoading.value = true
   await delList(unref(ids).length).finally(() => {
     delLoading.value = false
   })
 }
 
-const action = (row: ConfigTableData, type: string) => {
+const action = (row: DictTableData, type: string) => {
   dialogTitle.value = t(type === 'edit' ? 'exampleDemo.edit' : 'exampleDemo.detail')
   actionType.value = type
   currentRow.value = row
@@ -212,7 +242,7 @@ const save = async () => {
 </script>
 
 <template>
-  <ContentWrap title="配置管理" style="margin-bottom: 10px">
+  <ContentWrap title="部门管理" style="margin-bottom: 10px">
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
   </ContentWrap>
   <ContentWrap>
@@ -223,7 +253,7 @@ const save = async () => {
       :columns="allSchemas.tableColumns"
       :data="dataList"
       :loading="loading"
-      exportFileName="配置管理"
+      exportFileName="字典管理"
       :exportData="dataList"
       :pagination="{
         total: total,

@@ -334,6 +334,8 @@ const save = async () => {
       :columns="allSchemas.tableColumns"
       :data="dataList"
       :loading="loading"
+      exportFileName="菜单管理"
+      :exportData="dataList"
       :pagination="{
         total: total,
         small: true

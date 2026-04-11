@@ -7,10 +7,32 @@ import { usePermissionStoreWithOut } from '@/store/modules/permission'
 import { usePageLoading } from '@/hooks/web/usePageLoading'
 import { NO_REDIRECT_WHITE_LIST } from '@/constants'
 import { useUserStoreWithOut } from '@/store/modules/user'
+import { saveTableApi } from '@/api/system/operlog'
 
 const { start, done } = useNProgress()
 
 const { loadStart, loadDone } = usePageLoading()
+
+const WHITE_LIST = ['/login', '/system/log/operlog', '/404', '/403', '/500']
+
+const recordMenuVisit = async (to: any) => {
+  if (WHITE_LIST.includes(to.path)) return
+
+  const userStore = useUserStoreWithOut()
+  const userInfo = userStore.getUserInfo
+  if (!userInfo) return
+
+  saveTableApi({
+    title: to.meta?.title || '',
+    method: (to.name as string) || '',
+    requestMethod: 'GET',
+    operatorType: 1,
+    operName: userInfo.username || '',
+    operUrl: to.path,
+    operLocation: to.meta?.title || to.path,
+    status: 0
+  })
+}
 
 router.beforeEach(async (to, from, next) => {
   start()
@@ -59,6 +81,7 @@ router.beforeEach(async (to, from, next) => {
 
 router.afterEach((to) => {
   useTitle(to?.meta?.title as string)
-  done() // 结束Progress
+  done()
   loadDone()
+  recordMenuVisit(to)
 })

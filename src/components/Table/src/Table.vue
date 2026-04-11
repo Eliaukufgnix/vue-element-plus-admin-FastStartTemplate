@@ -28,6 +28,13 @@ export default defineComponent({
     currentPage: propTypes.number.def(1),
     // 是否展示表格的工具栏
     showAction: propTypes.bool.def(false),
+    // 导出文件名，不设置则使用默认名称
+    exportFileName: propTypes.string.def('导出数据'),
+    // 导出数据，不设置则不导出
+    exportData: {
+      type: Array as PropType<Recordable[]>,
+      default: () => []
+    },
     // 是否所有的超出隐藏，优先级低于schema中的showOverflowTooltip,
     showOverflowTooltip: propTypes.bool.def(true),
     // 表头
@@ -561,6 +568,8 @@ export default defineComponent({
                 {unref(getProps).showAction && !unref(getProps).customContent ? (
                   <TableActions
                     columns={unref(getProps).columns}
+                    exportFileName={unref(getProps).exportFileName}
+                    exportData={unref(getProps).exportData}
                     onChangSize={changSize}
                     onRefresh={refresh}
                     onConfirm={confirmSetColumn}

@@ -5,6 +5,7 @@ import { Icon } from '@/components/Icon'
 import { useI18n } from '@/hooks/web/useI18n'
 import { useAppStore } from '@/store/modules/app'
 import { TableColumn } from '../types'
+import { exportToExcel } from '@/utils/export'
 import ColumnSetting from './ColumnSetting.vue'
 
 export default defineComponent({
@@ -16,6 +17,14 @@ export default defineComponent({
     columns: {
       type: Array as PropType<TableColumn[]>,
       default: () => []
+    },
+    exportData: {
+      type: Array as PropType<Recordable[]>,
+      default: () => []
+    },
+    exportFileName: {
+      type: String,
+      default: '导出数据'
     }
   },
   emits: ['refresh', 'changSize', 'confirm'],
@@ -39,6 +48,22 @@ export default defineComponent({
 
     const showColumnSetting = () => {
       showSetting.value = true
+    }
+
+    const handleExport = () => {
+      if (!props.exportData || props.exportData.length === 0) {
+        return
+      }
+      const exportColumns = props.columns
+        .filter(
+          (col: TableColumn) =>
+            col.field && col.label && col.field !== 'selection' && col.field !== 'action'
+        )
+        .map((col: TableColumn) => ({
+          field: col.field as string,
+          label: col.label as string
+        }))
+      exportToExcel(props.exportData, exportColumns, props.exportFileName)
     }
 
     return () => (
@@ -84,6 +109,18 @@ export default defineComponent({
               }
             }}
           </ElDropdown>
+
+          <div
+            title="导出"
+            class="w-30px h-20px flex items-center justify-end"
+            onClick={handleExport}
+          >
+            <Icon
+              icon="ant-design:export-outlined"
+              class="cursor-pointer"
+              hover-color="var(--el-color-primary)"
+            />
+          </div>
 
           <div
             title="列设置"

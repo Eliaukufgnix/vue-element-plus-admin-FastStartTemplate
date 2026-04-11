@@ -54,7 +54,7 @@ export const useAppStore = defineStore('app', {
       tagsViewIcon: true, // 是否显示标签图标
       logo: true, // logo
       fixedHeader: true, // 固定toolheader
-      footer: true, // 显示页脚
+      footer: false, // 显示页脚
       greyMode: false, // 是否开始灰色模式，用于特殊悼念日
       dynamicRouter: true, // 是否动态路由
       serverDynamicRouter: true, // 是否服务端渲染动态路由
@@ -62,7 +62,7 @@ export const useAppStore = defineStore('app', {
 
       layout: 'classic', // layout布局
       isDark: false, // 是否是暗黑模式
-      currentSize: 'default', // 组件尺寸
+      currentSize: 'small', // 组件尺寸
       theme: {
         // 主题色
         elColorPrimary: '#409eff',

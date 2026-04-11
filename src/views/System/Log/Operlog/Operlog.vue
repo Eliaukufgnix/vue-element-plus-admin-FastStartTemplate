@@ -2,18 +2,18 @@
 import { ContentWrap } from '@/components/ContentWrap'
 import { Search } from '@/components/Search'
 import { Dialog } from '@/components/Dialog'
-import { Table } from '@/components/Table'
+import { Table, TableColumn } from '@/components/Table'
 import { useI18n } from '@/hooks/web/useI18n'
 import { ref, reactive, unref } from 'vue'
 import { useTable } from '@/hooks/web/useTable'
 import { CrudSchema, useCrudSchemas } from '@/hooks/web/useCrudSchemas'
-import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/config'
+import { getTableApi, deleteTableApi, saveTableApi } from '@/api/system/operlog'
 import { BaseButton } from '@/components/Button'
-import { ConfigTableData } from '@/api/system/config/types'
+import { OperLogTableData } from '@/api/system/operlog/types'
 import Write from './components/Write.vue'
 
 defineOptions({
-  name: 'Config'
+  name: 'Operlog'
 })
 
 const { t } = useI18n()
@@ -62,8 +62,8 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'configId',
-    label: '参数主键',
+    field: 'operId',
+    label: '操作日志ID',
     search: {
       hidden: true
     },
@@ -72,85 +72,129 @@ const crudSchemas = reactive<CrudSchema[]>([
     }
   },
   {
-    field: 'configName',
-    label: '参数名称'
+    field: 'title',
+    label: '模块标题',
+    search: {
+      component: 'Input'
+    }
   },
   {
-    field: 'configKey',
-    label: '参数键名'
-  },
-  {
-    field: 'configValue',
-    label: '参数键值'
-  },
-  {
-    field: 'createBy',
-    label: '创建者',
+    field: 'businessType',
+    label: '业务类型',
     search: {
       hidden: true
     }
   },
   {
-    field: 'createTime',
-    label: '创建时间',
+    field: 'method',
+    label: '方法名称',
     search: {
       hidden: true
+    }
+  },
+  {
+    field: 'requestMethod',
+    label: '请求方式',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operatorType',
+    label: '操作类别',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operName',
+    label: '操作人员',
+    search: {
+      component: 'Input'
+    }
+  },
+  {
+    field: 'deptName',
+    label: '部门名称',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operUrl',
+    label: '请求地址',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operIp',
+    label: '操作IP',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operLocation',
+    label: '操作地点',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'operParam',
+    label: '请求参数',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'jsonResult',
+    label: '返回参数',
+    search: {
+      hidden: true
+    }
+  },
+  {
+    field: 'status',
+    label: '状态',
+    formatter: (_: Recordable, __: TableColumn, cellValue: number) => {
+      return cellValue === 0 ? '正常' : '异常'
     },
-    form: {
-      component: 'DatePicker',
+    search: {
+      component: 'Select',
       componentProps: {
-        type: 'datetime'
+        style: {
+          width: '100%'
+        },
+        options: [
+          { label: '正常', value: 0 },
+          { label: '异常', value: 1 }
+        ]
       }
-    }
-  },
-  {
-    field: 'updateBy',
-    label: '更新者',
-    search: {
-      hidden: true
-    }
-  },
-  {
-    field: 'updateTime',
-    label: '更新时间',
-    search: {
-      hidden: true
     },
     form: {
-      component: 'DatePicker',
+      component: 'Select',
       componentProps: {
-        type: 'datetime'
+        options: [
+          { label: '正常', value: 0 },
+          { label: '异常', value: 1 }
+        ]
       }
     }
   },
   {
-    field: 'action',
-    width: '126px',
-    label: t('tableDemo.action'),
+    field: 'errorMsg',
+    label: '错误消息',
     search: {
       hidden: true
-    },
-    form: {
+    }
+  },
+  {
+    field: 'costTime',
+    label: '消耗时间',
+    search: {
       hidden: true
-    },
-    detail: {
-      hidden: true
-    },
-    table: {
-      slots: {
-        default: (data: any) => {
-          return (
-            <>
-              <BaseButton type="primary" onClick={() => action(data.row, 'edit')}>
-                {t('exampleDemo.edit')}
-              </BaseButton>
-              <BaseButton type="danger" onClick={() => delData(data.row)}>
-                {t('exampleDemo.del')}
-              </BaseButton>
-            </>
-          )
-        }
-      }
     }
   }
 ])
@@ -158,7 +202,7 @@ const { allSchemas } = useCrudSchemas(crudSchemas)
 
 const dialogVisible = ref(false)
 const dialogTitle = ref('')
-const currentRow = ref<ConfigTableData | null>(null)
+const currentRow = ref<OperLogTableData | null>(null)
 const actionType = ref('')
 
 const AddAction = () => {
@@ -170,22 +214,15 @@ const AddAction = () => {
 
 const delLoading = ref(false)
 
-const delData = async (row: ConfigTableData | null) => {
+const delData = async (row: OperLogTableData | null) => {
   const elTableExpose = await getElTableExpose()
   ids.value = row
-    ? [row.configId]
-    : elTableExpose?.getSelectionRows().map((v: ConfigTableData) => v.configId) || []
+    ? [row.operId]
+    : elTableExpose?.getSelectionRows().map((v: OperLogTableData) => v.operId) || []
   delLoading.value = true
   await delList(unref(ids).length).finally(() => {
     delLoading.value = false
   })
-}
-
-const action = (row: ConfigTableData, type: string) => {
-  dialogTitle.value = t(type === 'edit' ? 'exampleDemo.edit' : 'exampleDemo.detail')
-  actionType.value = type
-  currentRow.value = row
-  dialogVisible.value = true
 }
 
 const writeRef = ref<ComponentRef<typeof Write>>()
@@ -212,7 +249,7 @@ const save = async () => {
 </script>
 
 <template>
-  <ContentWrap title="配置管理" style="margin-bottom: 10px">
+  <ContentWrap title="操作日志管理" style="margin-bottom: 10px">
     <Search :schema="allSchemas.searchSchema" @search="setSearchParams" @reset="setSearchParams" />
   </ContentWrap>
   <ContentWrap>
@@ -223,7 +260,7 @@ const save = async () => {
       :columns="allSchemas.tableColumns"
       :data="dataList"
       :loading="loading"
-      exportFileName="配置管理"
+      exportFileName="操作日志"
       :exportData="dataList"
       :pagination="{
         total: total,
